@@ -1,3 +1,4 @@
+codigo js:
 const apiKey = "835a647d01bf89b72afc0a430535d948"; // Pegue em https://openweathermap.org/api
 
 const searchBtn = document.getElementById("searchBtn");
