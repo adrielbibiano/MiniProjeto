@@ -1,21 +1,19 @@
 /**
  * config.js
- * Versão adaptada para o plano Free do Render, usando a URL de Conexão Única.
+ * Configuração para ler Variáveis de Ambiente do Render.
  */
 
-// config (1).js
-
 const config = {
-    DATABASE_URL: process.env.DATABASE_URL, // Deixe o Render controlar isso
+    // Lendo a URL do banco de dados (que você deve configurar no Render)
+    DATABASE_URL: process.env.DATABASE_URL,
     
-    OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY, // Apenas leia a variável
+    // Lendo a Chave de API (que você deve configurar no Render)
+    OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY,
+
+    // URL base da API
     OPEN_WEATHER_BASE_URL: 'https://api.openweathermap.org/data/2.5/weather',
     
-    DEFAULT_CITY: 'Recife'
-};
-    OPEN_WEATHER_BASE_URL: 'https://api.openweathermap.org/data/2.5/weather',
-    
-    // O Render injeta a porta PORT automaticamente, não precisamos configurá-la
+    // Cidade padrão
     DEFAULT_CITY: 'Recife'
 };
 
