@@ -37,7 +37,7 @@ class WeatherService {
      * @param {string} city Nome da cidade (para busca e salvamento).
      */
     async fetchAndSaveLatestData(city = config.DEFAULT_CITY) {
-        if (config.OPEN_WEATHER_API_KEY === 'SUA_CHAVE_AQUI') {
+        if (config.OPEN_WEATHER_API_KEY === '835a647d01bf89b72afc0a430535d948') {
             throw new Error("Chave da OpenWeather não configurada. Defina a variável de ambiente OPEN_WEATHER_API_KEY.");
         }
         
