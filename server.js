@@ -12,7 +12,8 @@ const db = require('./db');
 const config = require('./config');
 
 const app = express();
-const PORT = config.PORT;
+// CORREÇÃO: Pegue a porta do Render ou use 3000 para testes locais
+const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use((req, res, next) => {
