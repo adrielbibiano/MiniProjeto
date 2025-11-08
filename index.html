@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clima 5 Dias - Recife</title>
+    <!-- Carrega Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilização para o gradiente de fundo */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0c4a6e 100%);
+            min-height: 100vh;
+            color: #e5e7eb;
+        }
+        /* Efeito de hover nos cards */
+        .weather-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .weather-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-4 sm:p-8">
+        <header class="text-center py-6 mb-8 bg-white/10 backdrop-blur-sm rounded-xl shadow-lg">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-white">
+                Previsão do Tempo 5 Dias
+            </h1>
+            <p class="mt-2 text-xl text-indigo-300" id="city-display">Carregando dados...</p>
+        </header>
+
+        <div id="loading-message" class="text-center text-xl mt-12">
+            <svg class="animate-spin h-8 w-8 text-white mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Conectando com a API...
+        </div>
+
+        <!-- Conteiner para os cartões de clima -->
+        <div id="weather-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mt-10">
+            <!-- Os cards serão injetados aqui pelo JavaScript -->
+        </div>
+        
+        <footer class="text-center mt-12 p-4 text-sm text-white/50">
+            <p>Arquitetura: Front-end -> Sua API (Express) -> PostgreSQL -> OpenWeather API.</p>
+            <p>Para ver os dados, execute a rota de atualização (POST /api/clima/atualizar) primeiro.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Usando caminho RELATIVO. Isso garante que funcionará em qualquer URL de deploy (Render).
+        const API_RECENT_URL = '/api/clima/recentes';
+        
+        // Função para obter o ícone (simulando a lógica da OpenWeather)
+        function getIcon(code) {
+            // Mapeamento simples dos códigos OpenWeather para Emojis
+            if (!code) return '❓';
+            if (code.includes('01')) return '☀️'; // Céu Limpo
+            if (code.includes('02')) return '🌤️'; // Poucas Nuvens
+            if (code.includes('03') || code.includes('04')) return '☁️'; // Nuvens
+            if (code.includes('09') || code.includes('10')) return '🌧️'; // Chuva
+            if (code.includes('11')) return '🌩️'; // Tempestade
+            if (code.includes('13')) return '❄️'; // Neve
+            if (code.includes('50')) return '🌫️'; // Névoa
+            return '🌡️';
+        }
+
+        // Função para criar o HTML de um cartão de clima
+        function createWeatherCard(data) {
+            const icon = getIcon(data.icone);
+            
+            return `
+                <div class="weather-card p-6 bg-white/10 rounded-2xl shadow-xl border border-white/20 backdrop-blur-lg">
+                    <div class="text-center">
+                        <p class="text-xl font-semibold text-indigo-300">${data.data}</p>
+                        <p class="text-sm text-white/70">${data.hora}</p>
+                    </div>
+                    <div class="my-4 text-7xl text-center">${icon}</div>
+                    <div class="text-center">
+                        <p class="text-5xl font-bold text-white">${data.temperatura}</p>
+                        <p class="text-lg mt-2 text-indigo-200">${data.condicao}</p>
+                        <p class="text-md mt-4 font-light text-white/90">${data.local}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Função principal para buscar e renderizar os dados
+        async function fetchAndRenderWeather() {
+            const container = document.getElementById('weather-container');
+            const loadingMessage = document.getElementById('loading-message');
+            const cityDisplay = document.getElementById('city-display');
+            
+            loadingMessage.classList.remove('hidden'); 
+            container.innerHTML = ''; 
+
+            try {
+                // A requisição usa o caminho relativo.
+                const response = await fetch(API_RECENT_URL); 
+                
+                if (!response.ok) {
+                    throw new Error(`Erro de HTTP: ${response.status} - Falha ao comunicar com o servidor.`);
+                }
+
+                const json = await response.json();
+
+                if (json.dados && json.dados.length > 0) {
+                    let htmlContent = '';
+                    // Mapeia e renderiza os dados
+                    json.dados.forEach(data => {
+                        htmlContent += createWeatherCard(data);
+                    });
+                    
+                    container.innerHTML = htmlContent;
+                    
+                    const cityName = json.dados[0].local;
+                    cityDisplay.textContent = `Resultados para: ${cityName}`;
+
+                } else {
+                     // Exibe mensagem de DB vazio
+                     container.innerHTML = `
+                        <div class="col-span-full text-center p-8 bg-blue-800/50 rounded-lg shadow-2xl">
+                            <h2 class="text-2xl font-bold mb-2 text-blue-300">Banco de Dados Vazio</h2>
+                            <p class="text-lg text-blue-100">Não há dados recentes de clima no PostgreSQL.</p>
+                            <p class="mt-4 text-blue-200">Você precisará enviar uma requisição POST para /api/clima/atualizar para popular o banco.</p>
+                        </div>
+                    `;
+                    cityDisplay.textContent = 'Aguardando dados...';
+                }
+
+            } catch (error) {
+                // Exibe erro de conexão/API
+                container.innerHTML = `
+                    <div class="col-span-full text-center p-8 bg-red-800/50 rounded-lg shadow-2xl">
+                        <h2 class="text-2xl font-bold mb-2 text-red-300">Erro de Aplicação</h2>
+                        <p class="text-lg text-red-100">O servidor Express pode não estar configurado corretamente ou o PostgreSQL não está acessível.</p>
+                        <p class="mt-4 text-red-200">${error.message}</p>
+                    </div>
+                `;
+                cityDisplay.textContent = 'Falha ao carregar dados.';
+                console.error("Erro ao buscar dados da API:", error);
+            } finally {
+                loadingMessage.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchAndRenderWeather);
+    </script>
+</body>
+</html>
