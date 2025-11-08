@@ -1,24 +1,40 @@
 
-
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Poppins", sans-serif;
   background: linear-gradient(135deg, #74ABE2, #5563DE);
   color: #fff;
   text-align: center;
-  padding: 50px;
+  padding: 50px 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+/* Caixa principal */
 .app {
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  border-radius: 10px;
-  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Barra de busca */
+.search-box {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 input {
+  width: 65%;
   padding: 10px;
   border: none;
   border-radius: 5px;
+  outline: none;
+  font-size: 16px;
 }
 
 button {
@@ -29,8 +45,63 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
+button:hover {
+  background-color: #eaeaea;
+}
+
+/* Clima atual */
+.current-weather {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+#icon {
+  width: 80px;
+}
+
+/* Previsão de 5 dias */
+#forecast {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.forecast-day {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  width: 100px;
+  text-align: center;
+  color: #fff;
+  transition: transform 0.2s;
+}
+
+.forecast-day:hover {
+  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.forecast-day img {
+  width: 50px;
+}
+
+.forecast-day .day {
+  text-transform: capitalize;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Esconder conteúdo inicialmente */
 .hidden {
   display: none;
 }
+
+
