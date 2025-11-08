@@ -4,7 +4,7 @@
  */
 const WeatherRepository = require('./WeatherRepository');
 const config = require('./config');
-const fetch = require('node-fetch'); // Módulo necessário para fazer requisições HTTP
+const fetch = require('node-fetch'); 
 
 class WeatherService {
     
@@ -17,10 +17,17 @@ class WeatherService {
         // Busca os dados brutos do PostgreSQL
         const rawData = await WeatherRepository.findRecentWeather(city);
         
-        // Define o fuso horário de Brasília/Recife (GMT-3)
+        // Define o fuso horário de Brasília/Recife (GMT-3) - (Correto)
         const options = {
-            timeZone: 'America/Sao_Paulo'
+            timeZone: 'America/Sao_Paulo',
+            weekday: 'long' // Vamos adicionar o dia da semana
         };
+
+        const timeOptions = {
+            timeZone: 'America/Sao_Paulo',
+            hour: '2-digit',
+            minute: '2-digit'
+        }
 
         // Formata os dados para o formato que a interface vai usar
         const formattedData = rawData.map(item => ({
@@ -30,7 +37,7 @@ class WeatherService {
             condicao: item.condicao,
             // Formatação da data/hora CORRIGIDA para o fuso GMT-3
             data: new Date(item.data_hora).toLocaleDateString('pt-BR', options),
-            hora: new Date(item.data_hora).toLocaleTimeString('pt-BR', options),
+            hora: new Date(item.data_hora).toLocaleTimeString('pt-BR', timeOptions),
             icone: item.icone
         }));
 
@@ -43,7 +50,7 @@ class WeatherService {
      */
     async fetchAndSaveLatestData(city = config.DEFAULT_CITY) {
         
-        // 1. Busca dados da OpenWeather
+        // 1. Busca dados da OpenWeather (agora da API de 'forecast')
         const url = `${config.OPEN_WEATHER_BASE_URL}?q=${city}&appid=${config.OPEN_WEATHER_API_KEY}&units=metric&lang=pt_br`;
         
         const response = await fetch(url);
@@ -53,22 +60,37 @@ class WeatherService {
         
         const apiData = await response.json();
 
-        if (apiData.cod !== 200) {
+        if (apiData.cod !== "200") {
             throw new Error(`OpenWeather API erro: ${apiData.message}`);
         }
 
-        // 2. Extrai e Formata para o Banco
-        const dataToSave = {
-            cidade: apiData.name,
-            temperatura: apiData.main.temp.toFixed(1), // Arredonda para 1 casa decimal
-            condicao: apiData.weather[0].description.charAt(0).toUpperCase() + apiData.weather[0].description.slice(1), // Capitaliza
-            icone: apiData.weather[0].icon
-        };
+        // 2. Filtra a lista para pegar apenas 1 registro por dia (o do meio-dia)
+        const dailyData = apiData.list.filter(item => item.dt_txt.includes("12:00:00"));
 
-        // 3. Salva no PostgreSQL
-        const savedData = await WeatherRepository.saveWeather(dataToSave);
+        if (!dailyData || dailyData.length === 0) {
+            throw new Error("Não foi possível obter dados de previsão filtrados.");
+        }
+
+        const savedRecords = [];
         
-        return savedData;
+        // 3. Salva CADA UM dos 5 dias no banco
+        for (const day of dailyData) {
+            const dataToSave = {
+                cidade: apiData.city.name, // O nome da cidade vem do objeto 'city'
+                temperatura: day.main.temp.toFixed(1),
+                condicao: day.weather[0].description.charAt(0).toUpperCase() + day.weather[0].description.slice(1),
+                icone: day.weather[0].icon,
+                data_hora: day.dt_txt // O timestamp vem da própria previsão
+            };
+
+            const savedData = await WeatherRepository.saveWeather(dataToSave);
+            savedRecords.push(savedData);
+        }
+        
+        return { 
+            cidade: apiData.city.name, 
+            registrosSalvos: savedRecords.length 
+        };
     }
 }
 
