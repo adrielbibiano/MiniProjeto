@@ -10,8 +10,8 @@ const config = {
     // Lendo a Chave de API (que você deve configurar no Render)
     OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY,
 
-    // URL base da API
-    OPEN_WEATHER_BASE_URL: 'https://api.openweathermap.org/data/2.5/weather',
+    // URL base da API (MUDANÇA AQUI)
+    OPEN_WEATHER_BASE_URL: 'https://api.openweathermap.org/data/2.5/forecast',
     
     // Cidade padrão
     DEFAULT_CITY: 'Recife'
