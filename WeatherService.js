@@ -17,15 +17,20 @@ class WeatherService {
         // Busca os dados brutos do PostgreSQL
         const rawData = await WeatherRepository.findRecentWeather(city);
         
+        // Define o fuso horário de Brasília/Recife (GMT-3)
+        const options = {
+            timeZone: 'America/Sao_Paulo'
+        };
+
         // Formata os dados para o formato que a interface vai usar
         const formattedData = rawData.map(item => ({
             id: item.id,
             local: item.cidade,
             temperatura: `${item.temperatura}°C`,
             condicao: item.condicao,
-            // Formatação da data/hora para leitura no Brasil
-            data: new Date(item.data_hora).toLocaleDateString('pt-BR'),
-            hora: new Date(item.data_hora).toLocaleTimeString('pt-BR'),
+            // Formatação da data/hora CORRIGIDA para o fuso GMT-3
+            data: new Date(item.data_hora).toLocaleDateString('pt-BR', options),
+            hora: new Date(item.data_hora).toLocaleTimeString('pt-BR', options),
             icone: item.icone
         }));
 
