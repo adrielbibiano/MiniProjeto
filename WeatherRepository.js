@@ -17,7 +17,8 @@ class WeatherRepository {
             SELECT id, cidade, temperatura, condicao, data_hora, icone 
             FROM weather_data 
             WHERE cidade ILIKE $1 
-            ORDER BY data_hora DESC 
+            -- MUDANÇA AQUI: Ordena ASC para mostrar a previsão em ordem cronológica
+            ORDER BY data_hora ASC 
             LIMIT 5;
         `;
         const { rows } = await db.query(query, [city]);
@@ -28,13 +29,17 @@ class WeatherRepository {
      * Salva um novo registro no banco de dados.
      * @param {Object} data O objeto de dados climáticos a ser salvo.
      */
-    async saveWeather({ cidade, temperatura, condicao, icone }) {
+    // MUDANÇA AQUI: A função agora espera 'data_hora'
+    async saveWeather({ cidade, temperatura, condicao, icone, data_hora }) {
         const query = `
-            INSERT INTO weather_data (cidade, temperatura, condicao, icone)
-            VALUES ($1, $2, $3, $4)
+            -- MUDANÇA AQUI: Adiciona a coluna 'data_hora'
+            INSERT INTO weather_data (cidade, temperatura, condicao, icone, data_hora)
+            -- MUDANÇA AQUI: Adiciona o parâmetro '$5'
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *;
         `;
-        const { rows } = await db.query(query, [cidade, temperatura, condicao, icone]);
+        // MUDANÇA AQUI: Passa 'data_hora' para a query
+        const { rows } = await db.query(query, [cidade, temperatura, condicao, icone, data_hora]);
         return rows[0];
     }
 }
