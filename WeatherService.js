@@ -36,12 +36,10 @@ class WeatherService {
      * FUNÇÃO PRINCIPAL: Busca dados da OpenWeather API e salva no PostgreSQL.
      * @param {string} city Nome da cidade (para busca e salvamento).
      */
-   // WeatherService (1).js
-
-async function fetchAndSaveLatestData(city = config.DEFAULT_CITY) {
-    // 1. Busca dados da OpenWeather
-    const url = `${config.OPEN_WEATHER_BASE_URL}?q=${city}&appid=${config.OPEN_WEATHER_API_KEY}&units=metric&lang=pt_br`;
-    // ...
+    async fetchAndSaveLatestData(city = config.DEFAULT_CITY) {
+        
+        // 1. Busca dados da OpenWeather
+        const url = `${config.OPEN_WEATHER_BASE_URL}?q=${city}&appid=${config.OPEN_WEATHER_API_KEY}&units=metric&lang=pt_br`;
         
         const response = await fetch(url);
         if (!response.ok) {
