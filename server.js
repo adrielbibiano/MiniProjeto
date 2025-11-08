@@ -13,7 +13,7 @@ const config = require('./config');
 
 const app = express();
 // CORREÇÃO: Pegue a porta do Render ou use 3000 para testes locais
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5432;
 
 // Middlewares
 app.use((req, res, next) => {
