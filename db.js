@@ -3,10 +3,8 @@
 const { Pool } = require('pg');
 const config = require('./config');
 
-// O Pool agora é configurado diretamente com a URL de conexão
 const pool = new Pool({
     connectionString: config.DATABASE_URL,
-    // Adiciona SSL obrigatório para conexão com o Render
     ssl: { rejectUnauthorized: false },
 });
 
@@ -23,7 +21,10 @@ async function initializeDatabase() {
                 cidade VARCHAR(100) NOT NULL,
                 temperatura NUMERIC(4,1) NOT NULL,
                 condicao VARCHAR(50) NOT NULL,
-                data_hora TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                
+                -- MUDANÇA AQUI: Removemos o DEFAULT, pois a API vai fornecer a data
+                data_hora TIMESTAMP WITH TIME ZONE NOT NULL, 
+                
                 icone VARCHAR(10)
             );
         `;
@@ -31,7 +32,6 @@ async function initializeDatabase() {
         console.log('PostgreSQL: Tabela weather_data verificada/criada.');
         client.release();
     } catch (error) {
-        // Se o DB não puder ser acessado, loga o erro para o Render
         console.error('ERRO CRÍTICO ao inicializar o banco de dados:', error.message);
         console.error('Verifique a variável DATABASE_URL no Render!');
     }
