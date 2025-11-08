@@ -1,16 +1,13 @@
 // db.js
-// Configura e exporta o pool de conexão real com o PostgreSQL.
+// Configura e exporta o pool de conexão real, usando a URL única do Render.
 const { Pool } = require('pg');
 const config = require('./config');
 
+// O Pool agora é configurado diretamente com a URL de conexão
 const pool = new Pool({
-    user: config.DB_USER,
-    host: config.DB_HOST,
-    database: config.DB_DATABASE,
-    password: config.DB_PASSWORD,
-    port: config.DB_PORT,
-    // Adiciona SSL para conexão com o Render (apenas se DB estiver na nuvem)
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    connectionString: config.DATABASE_URL,
+    // Adiciona SSL obrigatório para conexão com o Render
+    ssl: { rejectUnauthorized: false },
 });
 
 // Verifica a conexão e cria a tabela se não existir
@@ -36,8 +33,7 @@ async function initializeDatabase() {
     } catch (error) {
         // Se o DB não puder ser acessado, loga o erro para o Render
         console.error('ERRO CRÍTICO ao inicializar o banco de dados:', error.message);
-        console.error('Verifique suas credenciais de DB no config.js/ambiente.');
-        // Em um ambiente de produção real, você poderia travar o processo aqui.
+        console.error('Verifique a variável DATABASE_URL no Render!');
     }
 }
 
