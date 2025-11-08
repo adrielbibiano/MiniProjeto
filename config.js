@@ -8,7 +8,7 @@ const config = {
     DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres:guypostgre@localhost:5432/clima_db',
     
     // Variáveis da API Externa (OpenWeather)
-    OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY || 'SUA_CHAVE_AQUI',
+    OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY || '835a647d01bf89b72afc0a430535d948',
     OPEN_WEATHER_BASE_URL: 'https://api.openweathermap.org/data/2.5/weather',
     
     // O Render injeta a porta PORT automaticamente, não precisamos configurá-la
